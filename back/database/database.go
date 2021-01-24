@@ -16,18 +16,18 @@ const (
 	DBNAME   = "twitter_database"
 )
 
-var db *gorm.DB
+var DB *gorm.DB
 
 func ConnectToDB() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		HOST, PORT, USER, PASSWORD, DBNAME)
-	db, _ = gorm.Open("postgres", psqlInfo)
-	db.DB().SetMaxIdleConns(3)
+	DB, _ = gorm.Open("postgres", psqlInfo)
+	DB.DB().SetMaxIdleConns(3)
 }
 
 func AutoMigrate() {
-	db.AutoMigrate(
+	DB.AutoMigrate(
 		&model.User{},
 		// &model.Follow{},
 		// &model.Article{},

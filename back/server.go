@@ -7,16 +7,14 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/handler"
-	"github.com/shivaZeymaran/Twitter-Web.git/model"
 	"github.com/shivaZeymaran/Twitter-Web.git/database"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	"github.com/rs/cors"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 const (
-	PORT = 8090
+	PORT = "8090"
 )
 
 func main() {

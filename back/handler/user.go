@@ -35,9 +35,9 @@ func (user User) CreateUser(c echo.Context) error{
 
 	// Search in DB
 	var findUser model.User
-	database.db.Find(&findUser, model.User{Username: u.Username})
+	database.DB.Find(&findUser, model.User{Username: u.Username})
 	if findUser.Username == "" {  // Successfully created
-		database.db.Create(&u)
+		database.DB.Create(&u)
 		newU, _ := json.Marshal(u)
 		fmt.Println(string(newU))
 		return c.JSON(http.StatusCreated, "Dear "+ u.Username +", you have signed up successfully!")
