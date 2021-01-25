@@ -20,8 +20,8 @@ export default class Signup extends React.Component {
 
     this.state = {
       username: "",
-      email: "",
       password: "",
+      emailAddress: "",
     };
   }
 
@@ -34,23 +34,29 @@ export default class Signup extends React.Component {
   };
 
   getEmailAddress = (email) => {
-    this.setState({ email: email });
+    this.setState({ emailAddress: email });
   };
 
-  handleSubmit = (event) => {
-    event.preventDefault();
-    fetch("http://localhost:8090/signup", {
+  handleSubmit = async () => {
+    await fetch("http://localhost:3001/signup", {
       method: "post",
-      headers: { "Content-Type": "application/json" },
+      mode: "no-cors",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         username: this.state.username,
-        email: this.state.email,
+        email: this.state.emailAddress,
         password: this.state.password,
       }),
     }).then((res) => {
       var status = res.status;
-      console.log(status);
-      console.log(res);
+      if (status === 201) {
+        res.json.then((json) => {
+          console.log(json.token);
+        });
+      }
     });
   };
 
@@ -110,7 +116,11 @@ export default class Signup extends React.Component {
                 </Form.Item>
 
                 <Form.Item {...tailLayout}>
-                  <Button onClick={this.handleSubmit} type="primary" htmlType="submit">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    onClick={this.handleSubmit}
+                  >
                     Sign up
                   </Button>
                 </Form.Item>
