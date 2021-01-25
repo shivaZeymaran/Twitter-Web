@@ -27,7 +27,11 @@ func main() {
 	
 	e := echo.New()
 
-	e.POST("/signup", handler.User{}.CreateUser)
+	e.POST("/signup", handler.User{}.Signup)
+	e.POST("/login", handler.User{}.Login)
+	// todo: go to home page for user: output should be like login
+	// todo: search when not loged in
+	e.POST("/tweet", handler.User{}.Tweet)
 
 	// e.PUT("/customers/:cID", handler.Customer{}.Edit)
 	// e.DELETE("/customers/:cID", handler.Customer{}.Delete)

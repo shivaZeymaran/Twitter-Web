@@ -23,15 +23,12 @@ func ConnectToDB() {
 		"password=%s dbname=%s sslmode=disable",
 		HOST, PORT, USER, PASSWORD, DBNAME)
 	DB, _ = gorm.Open("postgres", psqlInfo)
-	DB.DB().SetMaxIdleConns(3)
+	DB.DB().SetMaxIdleConns(10)
 }
 
 func AutoMigrate() {
 	DB.AutoMigrate(
 		&model.User{},
-		// &model.Follow{},
-		// &model.Article{},
-		// &model.Comment{},
-		// &model.Tag{},
+		&model.Tweet{},
 	)
 }

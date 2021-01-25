@@ -1,36 +1,42 @@
 package handler
 
 import (
-	"encoding/json"
-	"fmt"
+	// "encoding/json"
+	// "fmt"
 	"net/http"
+	// "time"
 	
-
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/model"
 	"github.com/shivaZeymaran/Twitter-Web.git/database"
-	"gopkg.in/validator.v2"
 )
 
+var user_token_map map[string]string = initMap()
+
+func initMap() map[string]string{
+	return make(map[string]string)
+}
 
 // For binding handler methods
 type User struct {
 
 }
 
-
-func (user User) CreateUser(c echo.Context) error{
+// SignUp godoc
+// @Summary Register a new user
+// @Description Register a new user
+// @ID signup
+// @Accept  json
+// @Produce  json
+// @Router /signup [post]
+func (user User) Signup(c echo.Context) error{
 	// make new model from User
-	u := &model.User{}
+	u := &model.User {}
 	
-	// Bind given model to User struct
-	if err := c.Bind(&u); err != nil { // Not successful
-		return echo.NewHTTPError(http.StatusBadRequest, "Bad Request!")
-	}
-
-	// Validate the request values
-	if errs := validator.Validate(u); errs != nil {
-		return c.JSON(http.StatusBadRequest, errs)
+	// Bind given model to Sign up request struct and check validations
+	req := &SignupReq {}
+	if err := req.bind(c, u); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err)
 	}
 
 	// Search in DB
@@ -38,10 +44,73 @@ func (user User) CreateUser(c echo.Context) error{
 	database.DB.Find(&findUser, model.User{Username: u.Username})
 	if findUser.Username == "" {  // Successfully created
 		database.DB.Create(&u)
-		newU, _ := json.Marshal(u)
-		fmt.Println(string(newU))
-		return c.JSON(http.StatusCreated, "Dear "+ u.Username +", you have signed up successfully!")
+		return c.JSON(http.StatusCreated, newUserResponse(u))
 	}
 	// Username currently exists
-	return c.JSON(http.StatusBadRequest, "Username " + u.Username + " currently exists!")
+	return c.JSON(http.StatusBadRequest, "Username " + u.Username + " already exists!")
+}
+
+
+// Login godoc
+// @Summary Login for existing user
+// @Description Login for existing user
+// @ID login
+// @Accept  json
+// @Produce  json
+// @Router /login [post]
+func (user User) Login(c echo.Context) error{
+	// make new model from LoginRequest
+	req := &LoginReq {}
+
+	// Bind given model to request struct
+	if err := req.bind(c); err != nil { // Not successful
+		return  c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	// Search in DB
+	var u model.User
+	database.DB.Find(&u, model.User{Username: req.Username})
+	if u.Username != "" {  // Successfully find user
+		if u.CheckPassword(req.Password) {  // Password is true, user authorized
+			return c.JSON(http.StatusOK, newUserResponse(&u))
+		}
+		// password was wrong
+		return c.JSON(http.StatusForbidden, "Password is Wrong!")
+	}
+	// User does not exist
+	return c.JSON(http.StatusNotFound, "Username " + req.Username + " does not exist!")
+
+}
+
+
+// Tweet godoc
+// @Summary Create a tweet
+// @Description Create a tweet. Owner is require
+// @ID tweet
+// @Accept  json
+// @Produce  json
+// @Router /tweet [post]
+func (user User) Tweet(c echo.Context) error {
+	t := &model.Tweet {}
+
+	req := &TweetReq {}
+	if err := req.bind(c, t); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	t.OwnerID = userIDFromToken(c)
+
+	// add to DB
+	database.DB.Create(&t)
+
+	return c.JSON(http.StatusCreated, newTweetResponse(c, t))
+}
+
+
+func userIDFromToken(c echo.Context) uint {
+	id, ok := c.Get("user").(uint)
+	if !ok {
+		return 0
+	}
+	return id
 }
