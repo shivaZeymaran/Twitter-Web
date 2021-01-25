@@ -70,3 +70,20 @@ func (r *TweetReq) bind(c echo.Context, t *model.Tweet) error {
 	t.Text = r.Text
 	return nil
 }
+
+/********************************* Edit Profile **********************************/
+type EditReq struct {
+	Username  string  `json:"username" validate:"min=3,max=40,regexp=^[a-zA-Z]*$"`
+	Image     *string `json:"image"` 
+	Token     string  `json:"token"`
+}
+
+func (r *EditReq) bind(c echo.Context) error {
+	if err := c.Bind(r); err != nil {
+		return err
+	}
+	if errs := validator.Validate(r); errs != nil {
+		return errs
+	}
+	return nil
+}

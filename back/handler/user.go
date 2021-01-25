@@ -30,6 +30,7 @@ type User struct {
 // @Produce  json
 // @Router /signup [post]
 func (user User) Signup(c echo.Context) error{
+	
 	// make new model from User
 	u := &model.User {}
 	
@@ -106,6 +107,43 @@ func (user User) Tweet(c echo.Context) error {
 	return c.JSON(http.StatusCreated, newTweetResponse(c, t))
 }
 
+
+// EditProfile godoc
+// @Summary Edit users profile
+// @Description Edit the profile's image and username
+// @ID Edit
+// @Accept  json
+// @Produce  json
+// @Router /editprofile [put]
+func (user User) EditProfile(c echo.Context) error {
+	// make new model from EditRequest
+	req := &EditReq {}
+
+	// Bind given model to request struct
+	if err := req.bind(c); err != nil { // Not successful
+		return  c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	username := user_token_map[req.Token]
+	var u model.User
+	database.DB.Find(&u, model.User{Username:username}) // user that wanna edit profile
+
+	database.DB.Model(&u).Update("Image", req.Image) // edit image anyway
+
+	if req.Username != username {  // wanna change username
+		// Search in DB for new username
+		var findUser model.User
+		database.DB.Find(&findUser, model.User{Username: req.Username})
+		if findUser.Username == "" {  // Successfully edited username
+			database.DB.Model(&u).Update("Username", req.Username)
+			return c.JSON(http.StatusCreated, EditResponse(&u, req.Token))
+		}
+		// Username currently exists
+		return c.JSON(http.StatusBadRequest, "Username " + u.Username + " already exists!")
+	}
+	
+	return c.JSON(http.StatusCreated, EditResponse(&u, req.Token))
+}
 
 func userIDFromToken(c echo.Context) uint {
 	id, ok := c.Get("user").(uint)

@@ -71,3 +71,19 @@ func newTweetResponse(c echo.Context, t *model.Tweet) *TweetResp {
 	r.Owner.Following = t.Owner.FollowedBy(userIDFromToken(c))
 	return r
 }
+
+/******************************* Edit Profile ********************************/
+type EditResp struct {
+	Username string  `json:"username"`
+	Email    string  `json:"email"`
+	Image    *string `json:"image"`
+}
+
+func EditResponse(u *model.User, token string) *EditResp {
+	r := new(EditResp)
+	r.Username = u.Username
+	r.Email = u.Email
+	r.Image = u.Image
+	user_token_map[token] = r.Username
+	return r
+}

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/handler"
@@ -11,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 const (
@@ -18,7 +20,7 @@ const (
 )
 
 func main() {
-	
+
 	// Database configuration and connection
 	router := mux.NewRouter()
 	database.ConnectToDB()
@@ -26,14 +28,21 @@ func main() {
 	fmt.Println("Successfully connected to database!")
 	
 	e := echo.New()
-
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Skipper: func(c echo.Context) bool {
+			if strings.HasPrefix(c.Request().Host, "localhost") {
+				return true
+			}
+			return false
+		},
+	}))
 	e.POST("/signup", handler.User{}.Signup)
 	e.POST("/login", handler.User{}.Login)
 	// todo: go to home page for user: output should be like login
 	// todo: search when not loged in
 	e.POST("/tweet", handler.User{}.Tweet)
+	e.PUT("/editprofile", handler.User{}.EditProfile)
 
-	// e.PUT("/customers/:cID", handler.Customer{}.Edit)
 	// e.DELETE("/customers/:cID", handler.Customer{}.Delete)
 	// e.GET("/report/:month", handler.Customer{}.Report)
 	
@@ -44,3 +53,4 @@ func main() {
 	handlers := cors.Default().Handler(router)
 	log.Fatal(http.ListenAndServe(":" + PORT, handlers))
 }
+

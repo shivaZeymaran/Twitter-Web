@@ -9,15 +9,15 @@ function App() {
   return (
     <Router>
       <div>
-        <Link to="/sign-up">
+        <Link to="/signup">
           <Button type="primary">Sign up</Button>
         </Link>
-        <Link to="/log-in">
+        <Link to="/login">
           <Button type="default">Log in</Button>
         </Link>
         <Switch>
-          <Route path="/log-in" component={Login} />
-          <Route path="/sign-up" component={Signup} />
+          <Route path="/login" component={Login} />
+          <Route path="/signup" component={Signup} />
         </Switch>
       </div>
     </Router>
