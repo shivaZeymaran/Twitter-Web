@@ -37,8 +37,12 @@ export default class Signup extends React.Component {
     this.setState({ emailAddress: email });
   };
 
+  // fetchUrl = (url) => {
+  //   return fetch(url).then((response) => response.json());
+  // };
+
   handleSubmit = async () => {
-    await fetch("http://localhost:3001/signup", {
+    await fetch("http://localhost:8090/signup", {
       method: "post",
       mode: "no-cors",
       headers: {
@@ -50,14 +54,15 @@ export default class Signup extends React.Component {
         email: this.state.emailAddress,
         password: this.state.password,
       }),
-    }).then((res) => {
-      var status = res.status;
-      if (status === 201) {
-        res.json.then((json) => {
-          console.log(json.token);
-        });
-      }
-    });
+    })
+      .then((resp) => {
+        console.log(resp.status);
+        return resp.json();
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => console.log(error));
   };
 
   render() {
