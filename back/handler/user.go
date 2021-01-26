@@ -2,7 +2,8 @@ package handler
 
 import (
 	"net/http"
-	"fmt"
+	"sort"
+	// "fmt"
 
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/model"
@@ -188,8 +189,8 @@ func (user User) EditProfile(c echo.Context) error {
 // @Produce  json
 // @Router /follow/{username} [post]
 func (user User) Follow(c echo.Context) error {
-	// make new model from FollowRequest
-	req := &FollowReq {}
+	// make new model from SimpleRequest
+	req := &SimpleReq {}
 
 	// Bind given model to request struct
 	if err := req.bind(c); err != nil { // Not successful
@@ -223,8 +224,8 @@ func (user User) Follow(c echo.Context) error {
 // @Produce  json
 // @Router /unfollow/{username} [delete]
 func (user User) UnFollow(c echo.Context) error {
-	// make new model from FollowRequest
-	req := &FollowReq {}
+	// make new model from SimpleRequest
+	req := &SimpleReq {}
 
 	// Bind given model to request struct
 	if err := req.bind(c); err != nil { // Not successful
@@ -257,6 +258,50 @@ func (user User) UnFollow(c echo.Context) error {
 	return c.JSON(http.StatusOK, newFollowResponse(followerID, &u))
 }
 
+
+// Timeline godoc
+// @Summary Timeline of a user
+// @Description Display recent tweets sorted by their time in timeline
+// @ID timeline
+// @Accept  json
+// @Produce  json
+// @Router /timeline [get]
+func (user User) Timeline(c echo.Context) error {
+	// make new model from SimpleRequest
+	req := &SimpleReq {}
+
+	// Bind given model to request struct
+	if err := req.bind(c); err != nil { // Not successful
+		return  c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	// get user ID from token
+	username := user_token_map[req.Token]
+	var u model.User
+	database.DB.Find(&u, model.User{Username:username}) // user that going to display his/her timeline
+
+	var f = make([]model.Follow, 0) // all followers of current user
+	if err := database.DB.Where(&model.Follow{FollowerID: u.ID}).Find(&f).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, "User does not follow anyone yet!")
+	}
+
+	var tl = make([]model.Tweet, 0)  // Timeline tweets
+	for _, fo := range f {
+		var t = make([]model.Tweet, 0)  // each following user tweets
+		// .Where(&model.Tweet{OwnerID: fo.FollowingID}).Find(&t)
+		if err := database.DB.Find(&t, model.Tweet{OwnerID: fo.FollowingID}).Error; err != nil {
+			return c.JSON(http.StatusBadRequest, "User " + fo.Following.Username + "does not have any tweets yet!")
+		}
+		for _, tw := range t {
+			tl = append(tl, tw)
+		}
+	}
+	// sort timeline tweets by their time
+	sort.SliceStable(tl, func(i, j int) bool {
+		return tl[i].Time.After(tl[j].Time)
+	})
+	return c.JSON(http.StatusOK, newTweetResponse(c, &tl[0]))
+}
 
 
 func userIDFromToken(c echo.Context) uint {
