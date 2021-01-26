@@ -71,6 +71,22 @@ func (r *TweetReq) bind(c echo.Context, t *model.Tweet) error {
 	return nil
 }
 
+/******************************** Delete Tweet **********************************/
+type DeleteTweetReq struct {
+	Text  string `json:"text"`
+	Token string `json:"token"`
+}
+
+func (r *DeleteTweetReq) bind(c echo.Context) error {
+	if err := c.Bind(r); err != nil {
+		return err
+	}
+	if errs := validator.Validate(r); errs != nil {
+		return errs
+	}
+	return nil
+}
+
 /********************************* Edit Profile **********************************/
 type EditReq struct {
 	Username  string  `json:"username" validate:"min=3,max=40,regexp=^[a-zA-Z]*$"`
@@ -88,7 +104,7 @@ func (r *EditReq) bind(c echo.Context) error {
 	return nil
 }
 
-/******************************* Follow & UnFollow ********************************/
+/******************************** Follow & UnFollow ********************************/
 type FollowReq struct {
 	Token  string  `json:"token"`
 }

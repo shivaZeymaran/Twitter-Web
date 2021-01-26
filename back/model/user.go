@@ -14,6 +14,7 @@ type User struct {
 	Email 		string	 	`json:"email" validate:"regexp=^[^\.][^@\s]+@[^@\s]+\.[^@\s\.]+$"`  // todo: doesn't work!
 	Password 	string 	   	`json:"password" validate:"min=8"`
 	Image       *string     `json:"image"`
+	// Tweets      []Tweet     `json:"tweets" gorm:"foreignkey:OwnerUsername"`
 	Followers   []Follow   	`json:"followers" gorm:"foreignkey:FollowingID"`
 	Followings  []Follow   	`json:"followings" gorm:"foreignkey:FollowingID"`
 	// Timeline    []Tweet     `json:"timeline"`

@@ -39,6 +39,7 @@ func main() {
 	// todo: go to home page for user: output should be like login
 	// todo: search when not loged in
 	e.POST("/tweet", handler.User{}.Tweet)
+	e.DELETE("/deletetweet", handler.User{}.DeleteTweet)
 	e.PUT("/editprofile", handler.User{}.EditProfile)
 	e.POST("/follow/:username", handler.User{}.Follow)
 	e.DELETE("/unfollow/:username", handler.User{}.UnFollow)

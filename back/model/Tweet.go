@@ -10,9 +10,9 @@ import (
 type Tweet struct {
 	gorm.Model
 	Time          time.Time  `json:"time"`
-	Text          string     `json:"text" validate:"min=1,max=250"`
+	Text          string     `json:"text" validate:"min=1,max=250" gorm:"primary_key"`
 	Owner         User       `json:"owner"`
-	OwnerID       uint       `json:"ownerID"`
+	OwnerID       uint       `json:"ownerID" gorm:"primary_key"`
 	// Media        
 	Likes         []User     `json:"likes"`
 	Retweets      []User     `json:"retweets"`

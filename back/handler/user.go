@@ -2,7 +2,7 @@ package handler
 
 import (
 	"net/http"
-	// "fmt"
+	"fmt"
 
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/model"
@@ -103,6 +103,42 @@ func (user User) Tweet(c echo.Context) error {
 	database.DB.Create(&t)
 
 	return c.JSON(http.StatusCreated, newTweetResponse(c, t))
+}
+
+
+// Delete Tweet godoc
+// @Summary Delete a tweet
+// @Description Delete a tweet
+// @ID delete-tweet
+// @Accept  json
+// @Produce  json
+// @Router /deletetweet [delete]
+func (user User) DeleteTweet(c echo.Context) error {
+	// make new model from DeleteTweetRequest
+	req := &DeleteTweetReq {}
+
+	// Bind given model to request struct
+	if err := req.bind(c); err != nil { // Not successful
+		return  c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	// get user ID from token
+	username := user_token_map[req.Token]
+	var u model.User
+	database.DB.Find(&u, model.User{Username:username}) // user that wanna delete his/her tweet
+
+	// identify Tweet from tweet text and ownerID
+	var t model.Tweet
+	// Delete from DB
+	if err := database.DB.Where(&model.Tweet{Text: req.Text, OwnerID: u.ID}).Find(&t).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, "Tweet Not found for user")
+	}
+	
+	// if err := database.DB.Model(&u).Association("Tweets").Find(&t).Error; err != nil {
+	if err := database.DB.Delete(t).Error; err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, "Tweet successfully deleted!")
 }
 
 
@@ -220,6 +256,7 @@ func (user User) UnFollow(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, newFollowResponse(followerID, &u))
 }
+
 
 
 func userIDFromToken(c echo.Context) uint {
