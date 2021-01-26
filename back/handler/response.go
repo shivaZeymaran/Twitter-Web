@@ -50,7 +50,11 @@ type TweetResp struct {
 	} `json:"owner"`
 }
 
-func newTweetResponse(c echo.Context, t *model.Tweet) *TweetResp {
+type SingleTweetResp struct {
+	Tweet *TweetResp `json:"tweet"`
+}
+
+func newTweetResponse(c echo.Context, t *model.Tweet) *SingleTweetResp {
 	r := new(TweetResp)
 	r.Time = t.Time
 	r.Text = t.Text
@@ -71,8 +75,44 @@ func newTweetResponse(c echo.Context, t *model.Tweet) *TweetResp {
 	r.Owner.Username = t.Owner.Username
 	r.Owner.Image = t.Owner.Image
 	r.Owner.Following = t.Owner.FollowedBy(userIDFromToken(c))
+	return &SingleTweetResp{r}
+}
+
+/************************************ Timeline ************************************/
+type TimelineResp struct {  // list of tweets
+	Timeline []*TweetResp `json:"timeline"`
+}
+
+func TimelineResponse(c echo.Context, tl []model.Tweet) *TimelineResp {
+	r := new(TimelineResp)
+	r.Timeline = make([]*TweetResp, 0)
+	for _, t := range tl {  // for each tweet in timeline
+		tr := new(TweetResp)
+		tr.Time = t.Time
+		tr.Text = t.Text
+		for _, u := range t.Likes {
+			if u.ID == userIDFromToken(c) {
+				tr.Liked = true
+			}
+		}
+		tr.LikesCount = len(t.Likes)
+	
+		for _, u := range t.Retweets {
+			if u.ID == userIDFromToken(c) {
+				tr.Retweeted = true
+			}
+		}
+		tr.RetweetsCount = len(t.Retweets)
+	
+		tr.Owner.Username = t.Owner.Username
+		tr.Owner.Image = t.Owner.Image
+		tr.Owner.Following = t.Owner.FollowedBy(userIDFromToken(c))
+
+		r.Timeline = append(r.Timeline, tr)
+	}
 	return r
 }
+
 
 /******************************* Edit Profile ********************************/
 type EditResp struct {

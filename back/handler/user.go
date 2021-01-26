@@ -44,8 +44,11 @@ func (user User) Signup(c echo.Context) error{
 	database.DB.Find(&findUser, model.User{Username: u.Username})
 	if findUser.Username == "" {  // Successfully created
 		database.DB.Create(&u)
+		// Add to DB (each user is his/her own follower)
+		database.DB.Model(&u).Association("Followers").Append(&model.Follow{FollowerID: u.ID, FollowingID: u.ID})
 		return c.JSON(http.StatusCreated, newUserResponse(u))
 	}
+
 	// Username currently exists
 	return c.JSON(http.StatusBadRequest, "Username " + u.Username + " already exists!")
 }
@@ -300,7 +303,9 @@ func (user User) Timeline(c echo.Context) error {
 	sort.SliceStable(tl, func(i, j int) bool {
 		return tl[i].Time.After(tl[j].Time)
 	})
-	return c.JSON(http.StatusOK, newTweetResponse(c, &tl[0]))
+	return c.JSON(http.StatusOK, TimelineResponse(c, tl))
+
+	// todo: some bugs in each tweet's info
 }
 
 
