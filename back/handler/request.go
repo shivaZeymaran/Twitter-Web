@@ -104,12 +104,12 @@ func (r *EditReq) bind(c echo.Context) error {
 	return nil
 }
 
-/******************************** Follow & UnFollow ********************************/
-type FollowReq struct {
+/************************** Follow & UnFollow & Timeline *************************/
+type SimpleReq struct {
 	Token  string  `json:"token"`
 }
 
-func (r *FollowReq) bind(c echo.Context) error {
+func (r *SimpleReq) bind(c echo.Context) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
