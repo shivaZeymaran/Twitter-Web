@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/handler"
@@ -28,14 +27,13 @@ func main() {
 	fmt.Println("Successfully connected to database!")
 	
 	e := echo.New()
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Skipper: func(c echo.Context) bool {
-			if strings.HasPrefix(c.Request().Host, "localhost") {
-				return true
-			}
-			return false
-		},
+	
+	// CORS restricted
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 	}))
+
 	e.POST("/signup", handler.User{}.Signup)
 	e.POST("/login", handler.User{}.Login)
 	// todo: go to home page for user: output should be like login
@@ -53,4 +51,3 @@ func main() {
 	handlers := cors.Default().Handler(router)
 	log.Fatal(http.ListenAndServe(":" + PORT, handlers))
 }
-

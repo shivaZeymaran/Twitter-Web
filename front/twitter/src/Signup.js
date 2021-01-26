@@ -44,7 +44,7 @@ export default class Signup extends React.Component {
   handleSubmit = async () => {
     await fetch("http://localhost:8090/signup", {
       method: "post",
-      mode: "no-cors",
+      // mode: "no-cors",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",

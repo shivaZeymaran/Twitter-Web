@@ -37,7 +37,7 @@ func (user User) Signup(c echo.Context) error{
 	// Bind given model to Sign up request struct and check validations
 	req := &SignupReq {}
 	if err := req.bind(c, u); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err)
+		return c.JSON(http.StatusOK, err)
 	}
 
 	// Search in DB
