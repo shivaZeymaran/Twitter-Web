@@ -87,3 +87,18 @@ func (r *EditReq) bind(c echo.Context) error {
 	}
 	return nil
 }
+
+/******************************* Follow & UnFollow ********************************/
+type FollowReq struct {
+	Token  string  `json:"token"`
+}
+
+func (r *FollowReq) bind(c echo.Context) error {
+	if err := c.Bind(r); err != nil {
+		return err
+	}
+	if errs := validator.Validate(r); errs != nil {
+		return errs
+	}
+	return nil
+}

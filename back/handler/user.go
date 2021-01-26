@@ -1,11 +1,9 @@
 package handler
 
 import (
-	// "encoding/json"
-	// "fmt"
 	"net/http"
-	// "time"
-	
+	// "fmt"
+
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/model"
 	"github.com/shivaZeymaran/Twitter-Web.git/database"
@@ -144,6 +142,85 @@ func (user User) EditProfile(c echo.Context) error {
 	
 	return c.JSON(http.StatusCreated, EditResponse(&u, req.Token))
 }
+
+
+// Follow godoc
+// @Summary Follow a user
+// @Description Follow a user by username
+// @ID follow
+// @Accept  json
+// @Produce  json
+// @Router /follow/{username} [post]
+func (user User) Follow(c echo.Context) error {
+	// make new model from FollowRequest
+	req := &FollowReq {}
+
+	// Bind given model to request struct
+	if err := req.bind(c); err != nil { // Not successful
+		return  c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	// get user ID from token
+	un := user_token_map[req.Token]
+	var ru model.User
+	database.DB.Find(&ru, model.User{Username:un})
+	followerID := ru.ID
+	
+	username := c.Param("username")
+	var u model.User
+	database.DB.Find(&u, model.User{Username:username}) // user that wanna be followed
+	if u.Username == "" {  // chosen user not exists
+		return c.JSON(http.StatusNotFound, "Username " + u.Username + "does not exist!")
+	}
+	// Add to DB
+	database.DB.Model(&u).Association("Followers").Append(&model.Follow{FollowerID: followerID, FollowingID: u.ID})
+
+	return c.JSON(http.StatusOK, newFollowResponse(followerID, &u))
+}
+
+
+// Unfollow godoc
+// @Summary Unfollow a user
+// @Description Unfollow a user by username
+// @ID unfollow
+// @Accept  json
+// @Produce  json
+// @Router /unfollow/{username} [delete]
+func (user User) UnFollow(c echo.Context) error {
+	// make new model from FollowRequest
+	req := &FollowReq {}
+
+	// Bind given model to request struct
+	if err := req.bind(c); err != nil { // Not successful
+		return  c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	// get user ID from token
+	un := user_token_map[req.Token]
+	var ru model.User
+	database.DB.Find(&ru, model.User{Username:un})
+	followerID := ru.ID
+	
+	username := c.Param("username")
+	var u model.User // user that wanna be unfollowed
+	if err := database.DB.Find(&u, model.User{Username:username}).Error; err != nil {
+		return c.JSON(http.StatusNotFound, "Username " + username + " does not exist!") // chosen user not exists
+	} 
+
+	// Delete from DB
+	f := model.Follow{
+		FollowerID: followerID,
+		FollowingID: u.ID,
+	}
+	if err := database.DB.Model(&u).Association("Followers").Find(&f).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, "You did not follow user " + username)
+	}
+	if err := database.DB.Delete(f).Error; err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, newFollowResponse(followerID, &u))
+}
+
 
 func userIDFromToken(c echo.Context) uint {
 	id, ok := c.Get("user").(uint)

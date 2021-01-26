@@ -27,7 +27,7 @@ func main() {
 	fmt.Println("Successfully connected to database!")
 	
 	e := echo.New()
-	
+
 	// CORS restricted
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
@@ -40,8 +40,9 @@ func main() {
 	// todo: search when not loged in
 	e.POST("/tweet", handler.User{}.Tweet)
 	e.PUT("/editprofile", handler.User{}.EditProfile)
+	e.POST("/follow/:username", handler.User{}.Follow)
+	e.DELETE("/unfollow/:username", handler.User{}.UnFollow)
 
-	// e.DELETE("/customers/:cID", handler.Customer{}.Delete)
 	// e.GET("/report/:month", handler.Customer{}.Report)
 	
 	if err := e.Start("0.0.0.0:" + PORT); err != nil {

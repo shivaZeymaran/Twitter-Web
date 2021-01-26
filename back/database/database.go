@@ -30,5 +30,6 @@ func AutoMigrate() {
 	DB.AutoMigrate(
 		&model.User{},
 		&model.Tweet{},
+		&model.Follow{},
 	)
 }

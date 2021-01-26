@@ -14,16 +14,17 @@ type User struct {
 	Email 		string	 	`json:"email" validate:"regexp=^[^\.][^@\s]+@[^@\s]+\.[^@\s\.]+$"`  // todo: doesn't work!
 	Password 	string 	   	`json:"password" validate:"min=8"`
 	Image       *string     `json:"image"`
-	Followers   []Follow   	`json:"followers"`
-	Followings  []Follow   	`json:"followings"`
+	Followers   []Follow   	`json:"followers" gorm:"foreignkey:FollowingID"`
+	Followings  []Follow   	`json:"followings" gorm:"foreignkey:FollowingID"`
 	// Timeline    []Tweet     `json:"timeline"`
 }
 
 type Follow struct {
+	gorm.Model
 	Follower    User  `json:"follower"`
-	FollowerID  uint  `json:"followerUsername"`
+	FollowerID  uint  `json:"followerUsername" gorm:"primary_key"`
 	Following   User  `json:"following"`
-	FollowingID uint  `json:"followingUsername"`	
+	FollowingID uint  `json:"followingUsername" gorm:"primary_key"`	
 }
 
 func (u User) HashPassword(plain string) (string, error) {
@@ -39,7 +40,6 @@ func (u User) CheckPassword(plain string) bool {
 	return err == nil
 }
 
-// FollowedBy Followings should be pre loaded
 func (u *User) FollowedBy(id uint) bool {
 	if u.Followers == nil {   // no one follows this user so as you :)
 		return false

@@ -6,6 +6,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/model"
 	"github.com/shivaZeymaran/Twitter-Web.git/utils"
+	"github.com/shivaZeymaran/Twitter-Web.git/database"
+	"github.com/jinzhu/gorm"
 )
 
 
@@ -86,4 +88,31 @@ func EditResponse(u *model.User, token string) *EditResp {
 	r.Image = u.Image
 	user_token_map[token] = r.Username
 	return r
+}
+
+/********************************* Follow ***********************************/
+type FollowResp struct {
+	Username  string  `json:"username"`
+	Image     *string `json:"image"`
+	Following  bool   `json:"following"`
+}
+
+func newFollowResponse(userID uint, u *model.User) *FollowResp {
+	r := new(FollowResp)
+	r.Username = u.Username
+	r.Image = u.Image
+	r.Following, _ = IsFollower(u.ID, userID)
+	return r
+}
+
+
+func IsFollower(userID, followerID uint) (bool, error) {
+	var f model.Follow
+	if err := database.DB.Where("following_id = ? AND follower_id = ?", userID, followerID).Find(&f).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
