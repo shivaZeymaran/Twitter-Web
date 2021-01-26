@@ -1,7 +1,8 @@
 import "../App.css";
 import Home from "./Home";
-import * as React from "react";
+import PrivateRoute from "./PrivateRoute";
 
+import * as React from "react";
 import { Layout, Form, Input, Button, Checkbox } from "antd";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
@@ -62,7 +63,9 @@ export default class Login extends React.Component {
   render() {
     return (
       <Router>
-        <Route exact path="/home" component={Home} />
+        <Route path="/home">
+          <Home token={this.state.token} />
+        </Route>
         {!this.state.isAuthenticated && (
           <>
             <div>

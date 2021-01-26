@@ -1,5 +1,7 @@
 import "../App.css";
+
 import { Form, Input, Button } from "antd";
+import * as React from "react";
 
 const layout = {
   labelCol: {
@@ -10,37 +12,64 @@ const layout = {
   },
 };
 
-const validateMessages = {
-  required: "${label} is required!",
-  types: {
-    email: "${label} is not a valid email!",
-    number: "${label} is not a valid number!",
-  },
-  number: {
-    range: "${label} must be between ${min} and ${max}",
-  },
-};
+export default class NewTweet extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tweetText: "",
+    };
+  }
 
-function NewTweet() {
-  return (
-    <div className="newTweet">
-      <h1>Latest Tweets</h1>
-      <Form
-        {...layout}
-        name="nest-messages"
-        validateMessages={validateMessages}
-      >
-        <Form.Item name={["user", "introduction"]}>
-          <Input.TextArea placeholder="What's happening?" />
-        </Form.Item>
-        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-          <Button type="primary" htmlType="submit">
-            Tweet
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
-  );
+  setText = (text) => {
+    this.setState({
+      tweetText: text,
+    });
+  };
+
+  handleSubmit = () => {
+    console.log(this.props.token);
+    fetch("http://localhost:8090/tweet", {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: this.state.tweetText,
+        token: this.props.token,
+      }),
+    })
+      .then((response) => {
+        if (response.status === 201) console.log(response.status + " created!");
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+      });
+  };
+
+  render() {
+    return (
+      <div className="newTweet">
+        <h1>Latest Tweets</h1>
+        <Form {...layout} name="nest-messages">
+          <Form.Item name={["user", "introduction"]}>
+            <Input.TextArea
+              placeholder="What's happening?"
+              onChange={(e) => this.setText(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              onClick={this.handleSubmit}
+            >
+              Tweet
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
+    );
+  }
 }
-
-export default NewTweet;
