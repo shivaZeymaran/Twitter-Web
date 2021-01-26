@@ -1,6 +1,5 @@
 import "../App.css";
 import Home from "./Home";
-import PrivateRoute from "./PrivateRoute";
 
 import * as React from "react";
 import { Layout, Form, Input, Button, Checkbox } from "antd";

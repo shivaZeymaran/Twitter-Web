@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"fmt"
 
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/model"
