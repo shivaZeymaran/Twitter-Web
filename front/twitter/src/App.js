@@ -1,41 +1,55 @@
 import "./App.css";
 import Signup from "./Components/Signup";
 import Login from "./Components/Login";
+import Home from "./Components/Home";
 
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import { Button } from "antd";
-import { useState } from "react";
+import * as React from "react";
+
+export const AuthContext = React.createContext();
+
+const initialState = {
+  isAuthenticated: false,
+  username: null,
+  email: null,
+  image: null,
+  token: null,
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "LOGIN":
+      localStorage.setItem("username", JSON.stringify(action.payload.username));
+      localStorage.setItem("token", JSON.stringify(action.payload.token));
+      return {
+        isAuthenticated: true,
+        username: action.payload.username,
+        email: action.payload.email,
+        image: action.payload.image,
+        token: action.payload.token,
+      };
+    case "LOGOUT":
+      localStorage.clear();
+      return {
+        ...state,
+        isAuthenticated: false,
+      };
+    default:
+      return state;
+  }
+};
 
 function App() {
-  const [clicked, setClicked] = useState(false);
-
-  const handleClick = () => {
-    setClicked(true);
-  };
-
+  const [state, dispatch] = React.useReducer(reducer, initialState);
   return (
-    <Router>
-      {/* {!clicked && (
-        <> */}
-          <div className="app-container">
-            <Link to="/signup">
-              <Button type="primary" onClick={handleClick}>
-                Sign up
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button type="default" onClick={handleClick}>
-                Log in
-              </Button>
-            </Link>
-            <Switch>
-              <Route path="/login" component={Login} />
-              <Route path="/signup" component={Signup} />
-            </Switch>
-          </div>
-        {/* </>
-      )} */}
-    </Router>
+    <AuthContext.Provider
+      value={{
+        state,
+        dispatch,
+      }}
+    >
+      {/* <Route path="/" component={Login} /> */}
+      <div className="App">{!state.isAuthenticated ? <Login /> : <Home />}</div>
+    </AuthContext.Provider>
   );
 }
 
