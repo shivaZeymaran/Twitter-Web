@@ -42,9 +42,9 @@ func main() {
 	e.POST("/follow/:username", handler.User{}.Follow)
 	e.DELETE("/unfollow/:username", handler.User{}.UnFollow)
 	e.POST("/timeline", handler.User{}.Timeline)
-	// todo: search when not loged in
 	e.GET("/search@/:username", handler.User{}.SearchUser)
 	e.POST("/search@/:username", handler.User{}.SearchUserWithLogin)
+	e.POST("/like", handler.User{}.LikeTweet)
 	
 	if err := e.Start("0.0.0.0:" + PORT); err != nil {
 		fmt.Println("Server not connected!")

@@ -47,6 +47,7 @@ func (user User) Signup(c echo.Context) error{
 		// Add to DB (each user is his/her own follower)
 		u.Followers = make([]model.Follow, 0)
 		u.Tweets = make([]model.Tweet, 0)
+		// u.Likes = make([]model.Tweet, 0)
 		database.DB.Model(&u).Association("Followers").Append(&model.Follow{FollowerID: u.ID, FollowingID: u.ID})
 		return c.JSON(http.StatusCreated, newUserResponse(u))
 	}
@@ -104,6 +105,7 @@ func (user User) Tweet(c echo.Context) error {
 	}
 
 	t.OwnerID = userIDFromToken(c)
+	// t.Likes = make([]model.User, 0)
 
 	// add to DB
 	database.DB.Create(&t)
@@ -359,6 +361,44 @@ func (user User) SearchUserWithLogin(c echo.Context) error {
 	return c.JSON(http.StatusOK, newFollowResponse(uid, &su))
 }
 
+
+// Like godoc
+// @Summary Like a tweet
+// @Description Like a tweet
+// @ID like
+// @Accept  json
+// @Produce  json
+// @Router /like [post]
+func (user User) LikeTweet(c echo.Context) error {
+	// make new model from LikeRequest
+	req := &LikeReq {}
+
+	// Bind given model to request struct
+	if err := req.bind(c); err != nil { // Not successful
+		return  c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	// get user ID from token
+	username := user_token_map[req.Token]
+	var u model.User  // user that wanna like a tweet
+	database.DB.Find(&u, model.User{Username:username})
+
+	// get user ID from given username (owner of tweet)
+	var ou model.User  // owner user
+	database.DB.Find(&ou, model.User{Username:req.OwnerUsername})
+
+	// identify Tweet from tweet text and owner id
+	var t model.Tweet
+	// Add to DB
+	if err := database.DB.Where(&model.Tweet{Text: req.Text, OwnerID: ou.ID}).Find(&t).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, "Tweet Not found for user")
+	}
+	t.Likes = make([]model.User, 1)
+	database.DB.Model(&t).Association("Likes").Append(&u)
+
+	t.Owner = ou
+	return c.JSON(http.StatusCreated, newTweetResponse(c, &t))
+}
 
 func userIDFromToken(c echo.Context) uint {
 	id, ok := c.Get("user").(uint)

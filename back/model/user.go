@@ -17,6 +17,7 @@ type User struct {
 	Tweets      []Tweet     `json:"tweets" gorm:"foreignkey:OwnerID"`
 	Followers   []Follow   	`json:"followers" gorm:"foreignkey:FollowingID"`
 	Followings  []Follow   	`json:"followings" gorm:"foreignkey:FollowingID"`
+	Likes       []Tweet     `json:"likes" gorm:"many2many:likes;`
 }
 
 type Follow struct {
