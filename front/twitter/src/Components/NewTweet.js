@@ -2,6 +2,7 @@ import "../App.css";
 
 import { Form, Input, Button } from "antd";
 import * as React from "react";
+import { AuthContext } from "../App";
 
 const layout = {
   labelCol: {
@@ -12,22 +13,12 @@ const layout = {
   },
 };
 
-export default class NewTweet extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      tweetText: "",
-    };
-  }
+const NewTweet = () => {
+  const { state: authState } = React.useContext(AuthContext);
+  const [tweetText, setTweetText] = React.useState("");
 
-  setText = (text) => {
-    this.setState({
-      tweetText: text,
-    });
-  };
-
-  handleSubmit = () => {
-    console.log(this.props.token);
+  const handleSubmit = () => {
+    console.log(authState.token);
     fetch("http://localhost:8090/tweet", {
       method: "post",
       headers: {
@@ -35,8 +26,8 @@ export default class NewTweet extends React.Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        text: this.state.tweetText,
-        token: this.props.token,
+        text: tweetText,
+        token: authState.token,
       }),
     })
       .then((response) => {
@@ -48,28 +39,24 @@ export default class NewTweet extends React.Component {
       });
   };
 
-  render() {
-    return (
-      <div className="newTweet">
-        <h1>Latest Tweets</h1>
-        <Form {...layout} name="nest-messages">
-          <Form.Item name={["user", "introduction"]}>
-            <Input.TextArea
-              placeholder="What's happening?"
-              onChange={(e) => this.setText(e.target.value)}
-            />
-          </Form.Item>
-          <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-            <Button
-              type="primary"
-              htmlType="submit"
-              onClick={this.handleSubmit}
-            >
-              Tweet
-            </Button>
-          </Form.Item>
-        </Form>
-      </div>
-    );
-  }
-}
+  return (
+    <div className="newTweet">
+      <h1>Latest Tweets</h1>
+      <Form {...layout} name="nest-messages">
+        <Form.Item name={["user", "introduction"]}>
+          <Input.TextArea
+            placeholder="What's happening?"
+            onChange={(e) => setTweetText(e.target.value)}
+          />
+        </Form.Item>
+        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+          <Button type="primary" htmlType="submit" onClick={handleSubmit}>
+            Tweet
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
+  );
+};
+
+export default NewTweet;

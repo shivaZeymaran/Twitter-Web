@@ -1,9 +1,9 @@
 import { Card } from "antd";
 
-const Tweet = ({ text }) => {
+const Tweet = ({ tweet }) => {
   return (
-    <Card title="tweet zanande" bordered={false} style={{ width: 900 }}>
-      <p>{text}</p>
+    <Card title={tweet.owner.username} bordered={true} style={{ width: 900 }}>
+      <p>{tweet.text}</p>
     </Card>
   );
 };

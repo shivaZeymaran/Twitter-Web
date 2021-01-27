@@ -1,5 +1,6 @@
 import "../App.css";
 import Home from "./Home";
+import { AuthContext } from "../App";
 
 import * as React from "react";
 import { Layout, Form, Input, Button, Checkbox } from "antd";
@@ -15,140 +16,145 @@ const tailLayout = {
   wrapperCol: { offset: 8, span: 16 },
 };
 
-export default class Signup extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      username: "",
-      password: "",
-      emailAddress: "",
-      token: "",
-      isAuthenticated: false,
-    };
-  }
-
-  setUsername = (username) => {
-    this.setState({ username: username });
+const Signup = () => {
+  const { dispatch } = React.useContext(AuthContext);
+  const initialState = {
+    username: "",
+    emailAddress: "",
+    password: "",
+    token: "",
+    isSubmitting: false,
   };
 
-  setPassword = (password) => {
-    this.setState({ password: password });
+  const [data, setData] = React.useState(initialState);
+
+  const setUsername = (username) => {
+    setData({
+      ...data,
+      username: username,
+    });
   };
 
-  setEmailAddress = (email) => {
-    this.setState({ emailAddress: email });
+  const setPassword = (password) => {
+    setData({
+      ...data,
+      password: password,
+    });
   };
 
-  handleSubmit = () => {
-    fetch("http://localhost:8090/signup", {
+  const setEmailAddress = (email) => {
+    setData({
+      ...data,
+      emailAddress: email,
+    });
+  };
+
+  const handleSubmit = async () => {
+    await fetch("http://localhost:8090/signup", {
       method: "post",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: this.state.username,
-        email: this.state.emailAddress,
-        password: this.state.password,
+        username: data.username,
+        email: data.emailAddress,
+        password: data.password,
       }),
     })
-      .then((response) => {
-        if (response.status === 201) console.log(response.status + " Created!");
-        return response.json();
+      .then((res) => {
+        console.log(res.status);
+        if (res.status === 200) return res.json();
       })
-      .then((data) => {
-        this.setState({
-          token: data.user.token,
-          isAuthenticated: true,
+      .then((resJson) => {
+        console.log(resJson.user);
+        dispatch({
+          type: "SIGNUP",
+          payload: resJson.user,
         });
-        console.log(data.user.token);
+      })
+      .catch((errorMessage) => {
+        console.log(errorMessage);
       });
   };
 
-  render() {
-    return (
-      <Router>
-        <Route exact path="/home" component={Home} />
-        {!this.state.isAuthenticated && (
-          <>
-            <div>
-              <Layout>
-                <Header>Header</Header>
-                <Content>
-                  <Form
-                    {...layout}
-                    name="basic"
-                    initialValues={{ remember: true }}
-                    onSubmit={this.handleSubmit}
+  return (
+    <Router>
+      <Route exact path="/home" component={Home} />
+      {/* {!this.state.isAuthenticated && (
+          <> */}
+      <div>
+        <Layout>
+          <Header>Header</Header>
+          <Content>
+            <Form
+              {...layout}
+              name="basic"
+              initialValues={{ remember: true }}
+              onSubmit={handleSubmit}
+            >
+              <Form.Item
+                label="Username"
+                name="username"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input your username!",
+                  },
+                ]}
+              >
+                <Input onChange={(e) => setUsername(e.target.value)} />
+              </Form.Item>
+
+              <Form.Item
+                name={["user", "email"]}
+                label="Email Address"
+                rules={[{ required: true, type: "email" }]}
+              >
+                <Input onChange={(e) => setEmailAddress(e.target.value)} />
+              </Form.Item>
+
+              <Form.Item
+                label="Password"
+                name="password"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input your password!",
+                  },
+                ]}
+              >
+                <Input.Password onChange={(e) => setPassword(e.target.value)} />
+              </Form.Item>
+
+              <Form.Item
+                {...tailLayout}
+                name="remember"
+                valuePropName="checked"
+              >
+                <Checkbox>Remember me</Checkbox>
+              </Form.Item>
+
+              <Form.Item {...tailLayout}>
+                <Link to="/home">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    onClick={handleSubmit}
                   >
-                    <Form.Item
-                      label="Username"
-                      name="username"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input your username!",
-                        },
-                      ]}
-                    >
-                      <Input
-                        onChange={(e) => this.setUsername(e.target.value)}
-                      />
-                    </Form.Item>
+                    Sign up
+                  </Button>
+                </Link>
+              </Form.Item>
+            </Form>
+          </Content>
+          <Footer>Footer</Footer>
+        </Layout>
+      </div>
+      {/* </>
+        )} */}
+    </Router>
+  );
+};
 
-                    <Form.Item
-                      name={["user", "email"]}
-                      label="Email Address"
-                      rules={[{ required: true, type: "email" }]}
-                    >
-                      <Input
-                        onChange={(e) => this.setEmailAddress(e.target.value)}
-                      />
-                    </Form.Item>
-
-                    <Form.Item
-                      label="Password"
-                      name="password"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input your password!",
-                        },
-                      ]}
-                    >
-                      <Input.Password
-                        onChange={(e) => this.setPassword(e.target.value)}
-                      />
-                    </Form.Item>
-
-                    <Form.Item
-                      {...tailLayout}
-                      name="remember"
-                      valuePropName="checked"
-                    >
-                      <Checkbox>Remember me</Checkbox>
-                    </Form.Item>
-
-                    <Form.Item {...tailLayout}>
-                      <Link to="/home">
-                        <Button
-                          type="primary"
-                          htmlType="submit"
-                          onClick={this.handleSubmit}
-                        >
-                          Sign up
-                        </Button>
-                      </Link>
-                    </Form.Item>
-                  </Form>
-                </Content>
-                <Footer>Footer</Footer>
-              </Layout>
-            </div>
-          </>
-        )}
-      </Router>
-    );
-  }
-}
+export default Signup;
