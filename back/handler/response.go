@@ -130,7 +130,7 @@ func EditResponse(u *model.User, token string) *EditResp {
 	return r
 }
 
-/********************************* Follow ***********************************/
+/******************* Follow & Search User with login ***********************/
 type FollowResp struct {
 	Username  string  `json:"username"`
 	Image     *string `json:"image"`
@@ -145,6 +145,21 @@ func newFollowResponse(userID uint, u *model.User) *FollowResp {
 	return r
 }
 
+/******************************* Search User ********************************/
+type SearchUserResp struct {
+	Username  string  `json:"username"`
+	Image     *string `json:"image"`
+}
+
+func SearchUserResponse(u *model.User) *SearchUserResp {
+	r := new(SearchUserResp)
+	r.Username = u.Username
+	r.Image = u.Image
+	return r
+}
+
+
+/**** helper functions ****/
 
 func IsFollower(userID, followerID uint) (bool, error) {
 	var f model.Follow
@@ -158,13 +173,6 @@ func IsFollower(userID, followerID uint) (bool, error) {
 }
 
 func FollowedBy(u model.User, id uint) bool {
-	// f := model.Follow{
-	// 	FollowerID: followerID,
-	// 	FollowingID: u.ID,
-	// }
-	// if err := database.DB.Model(&u).Association("Followers").Find(&f).Error; err != nil {
-	// 	return c.JSON(http.StatusBadRequest, "You did not follow user " + username)
-	// }
 	var f model.Follow
 	database.DB.Find(&f, model.Follow{FollowerID:u.ID, FollowingID:id})
 	if u.Username == "" {   // user with identifier "id" does not follow this user

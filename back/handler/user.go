@@ -271,7 +271,7 @@ func (user User) UnFollow(c echo.Context) error {
 // @ID timeline
 // @Accept  json
 // @Produce  json
-// @Router /timeline [get]
+// @Router /timeline [post]
 func (user User) Timeline(c echo.Context) error {
 	// make new model from SimpleRequest
 	req := &SimpleReq {}
@@ -309,6 +309,54 @@ func (user User) Timeline(c echo.Context) error {
 		return tl[i].Time.After(tl[j].Time)
 	})
 	return c.JSON(http.StatusOK, TimelineResponse(c, tl))
+}
+
+
+// Search User godoc
+// @Summary Search a user
+// @Description Find a user by searching it's username (user may logged in or not)
+// @ID search-user
+// @Accept  json
+// @Produce  json
+// @Router /search@/{username} [get]
+func (user User) SearchUser(c echo.Context) error {
+	username := c.Param("username")
+	var u model.User
+	if err := database.DB.Find(&u, model.User{Username:username}).Error; err != nil {
+		return c.JSON(http.StatusNotFound, "Username " + username + " does not exist!")
+	} 
+	return c.JSON(http.StatusOK, SearchUserResponse(&u))
+}
+
+
+// Search User godoc
+// @Summary Search a user
+// @Description Find a user by searching it's username (user may logged in or not)
+// @ID search-user
+// @Accept  json
+// @Produce  json
+// @Router /search@/{username} [post]
+func (user User) SearchUserWithLogin(c echo.Context) error {
+	// make new model from SimpleRequest
+	req := &SimpleReq {}
+
+	// Bind given model to request struct
+	if err := req.bind(c); err != nil { // Not successful
+		return  c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	// get user ID from token
+	uname := user_token_map[req.Token]
+	var u model.User
+	database.DB.Find(&u, model.User{Username:uname})
+	uid := u.ID
+
+	username := c.Param("username")
+	var su model.User  // user that be searched by its username
+	if err := database.DB.Find(&su, model.User{Username:username}).Error; err != nil {
+		return c.JSON(http.StatusNotFound, "Username " + username + " does not exist!")
+	} 
+	return c.JSON(http.StatusOK, newFollowResponse(uid, &su))
 }
 
 

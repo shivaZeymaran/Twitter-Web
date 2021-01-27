@@ -17,7 +17,6 @@ type User struct {
 	Tweets      []Tweet     `json:"tweets" gorm:"foreignkey:OwnerID"`
 	Followers   []Follow   	`json:"followers" gorm:"foreignkey:FollowingID"`
 	Followings  []Follow   	`json:"followings" gorm:"foreignkey:FollowingID"`
-	// Timeline    []Tweet     `json:"timeline"`
 }
 
 type Follow struct {
@@ -41,7 +40,6 @@ func (u User) CheckPassword(plain string) bool {
 	return err == nil
 }
 
-// cd .\back
 // go run server.go
 
 // git add .
