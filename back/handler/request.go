@@ -2,6 +2,7 @@ package handler
 
 import (
 	"time"
+	// "fmt"
 
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/model"
@@ -65,6 +66,7 @@ func (r *TweetReq) bind(c echo.Context, t *model.Tweet) error {
 	username := user_token_map[r.Token]
 	var u model.User
 	database.DB.Find(&u, model.User{Username:username})
+	// database.DB.Model(&u).Association("Tweets").Append(&model.Tweet{OwnerID: u.ID, Text: r.Text})
 	t.Owner = u
 	t.Time = time.Now()
 	t.Text = r.Text

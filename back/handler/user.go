@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 	"sort"
-	// "fmt"
+	"fmt"
 
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/model"
@@ -45,6 +45,8 @@ func (user User) Signup(c echo.Context) error{
 	if findUser.Username == "" {  // Successfully created
 		database.DB.Create(&u)
 		// Add to DB (each user is his/her own follower)
+		u.Followers = make([]model.Follow, 0)
+		u.Tweets = make([]model.Tweet, 0)
 		database.DB.Model(&u).Association("Followers").Append(&model.Follow{FollowerID: u.ID, FollowingID: u.ID})
 		return c.JSON(http.StatusCreated, newUserResponse(u))
 	}
@@ -173,6 +175,7 @@ func (user User) EditProfile(c echo.Context) error {
 		var findUser model.User
 		database.DB.Find(&findUser, model.User{Username: req.Username})
 		if findUser.Username == "" {  // Successfully edited username
+			fmt.Println(req.Username)
 			database.DB.Model(&u).Update("Username", req.Username)
 			return c.JSON(http.StatusCreated, EditResponse(&u, req.Token))
 		}
@@ -290,12 +293,14 @@ func (user User) Timeline(c echo.Context) error {
 
 	var tl = make([]model.Tweet, 0)  // Timeline tweets
 	for _, fo := range f {
-		var t = make([]model.Tweet, 0)  // each following user tweets
-		// .Where(&model.Tweet{OwnerID: fo.FollowingID}).Find(&t)
-		if err := database.DB.Find(&t, model.Tweet{OwnerID: fo.FollowingID}).Error; err != nil {
-			return c.JSON(http.StatusBadRequest, "User " + fo.Following.Username + "does not have any tweets yet!")
+		var t = make([]model.Tweet, 0)  // each following user tweets		
+		var fu model.User
+		database.DB.Find(&fu, fo.FollowingID)
+		if err := database.DB.Model(&fu).Association("Tweets").Find(&t).Error; err != nil {
+			return c.JSON(http.StatusNotFound, "Can't retreive tweets of User " + fo.Following.Username)
 		}
 		for _, tw := range t {
+			tw.Owner = fu
 			tl = append(tl, tw)
 		}
 	}
@@ -304,8 +309,6 @@ func (user User) Timeline(c echo.Context) error {
 		return tl[i].Time.After(tl[j].Time)
 	})
 	return c.JSON(http.StatusOK, TimelineResponse(c, tl))
-
-	// todo: some bugs in each tweet's info
 }
 
 

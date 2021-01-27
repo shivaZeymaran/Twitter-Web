@@ -74,7 +74,7 @@ func newTweetResponse(c echo.Context, t *model.Tweet) *SingleTweetResp {
 
 	r.Owner.Username = t.Owner.Username
 	r.Owner.Image = t.Owner.Image
-	r.Owner.Following = t.Owner.FollowedBy(userIDFromToken(c))
+	r.Owner.Following = FollowedBy(t.Owner, userIDFromToken(c))
 	return &SingleTweetResp{r}
 }
 
@@ -106,7 +106,7 @@ func TimelineResponse(c echo.Context, tl []model.Tweet) *TimelineResp {
 	
 		tr.Owner.Username = t.Owner.Username
 		tr.Owner.Image = t.Owner.Image
-		tr.Owner.Following = t.Owner.FollowedBy(userIDFromToken(c))
+		tr.Owner.Following = FollowedBy(t.Owner, userIDFromToken(c))
 
 		r.Timeline = append(r.Timeline, tr)
 	}
@@ -155,4 +155,20 @@ func IsFollower(userID, followerID uint) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func FollowedBy(u model.User, id uint) bool {
+	// f := model.Follow{
+	// 	FollowerID: followerID,
+	// 	FollowingID: u.ID,
+	// }
+	// if err := database.DB.Model(&u).Association("Followers").Find(&f).Error; err != nil {
+	// 	return c.JSON(http.StatusBadRequest, "You did not follow user " + username)
+	// }
+	var f model.Follow
+	database.DB.Find(&f, model.Follow{FollowerID:u.ID, FollowingID:id})
+	if u.Username == "" {   // user with identifier "id" does not follow this user
+		return false
+	}
+	return true
 }
