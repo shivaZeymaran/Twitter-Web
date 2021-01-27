@@ -400,6 +400,30 @@ func (user User) LikeTweet(c echo.Context) error {
 	return c.JSON(http.StatusCreated, newTweetResponse(c, &t))
 }
 
+
+// Logout godoc
+// @Summary Logout from current user
+// @Description Logout from current user
+// @ID logout
+// @Accept  json
+// @Produce  json
+// @Router /logout [post]
+func (user User) Logout(c echo.Context) error{
+	// make new model from SimpleRequest
+	req := &SimpleReq {}
+
+	// Bind given model to request struct
+	if err := req.bind(c); err != nil { // Not successful
+		return  c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	delete(user_token_map, req.Token) // remove element user_token_map[req.Token] from map of tokens
+	
+	return c.JSON(http.StatusOK, "You logged out successfully!")
+
+}
+
+
 func userIDFromToken(c echo.Context) uint {
 	id, ok := c.Get("user").(uint)
 	if !ok {

@@ -45,6 +45,7 @@ func main() {
 	e.GET("/search@/:username", handler.User{}.SearchUser)
 	e.POST("/search@/:username", handler.User{}.SearchUserWithLogin)
 	e.POST("/like", handler.User{}.LikeTweet)
+	e.POST("/logout", handler.User{}.Logout)
 	
 	if err := e.Start("0.0.0.0:" + PORT); err != nil {
 		fmt.Println("Server not connected!")

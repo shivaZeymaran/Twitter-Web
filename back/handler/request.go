@@ -107,7 +107,7 @@ func (r *EditReq) bind(c echo.Context) error {
 	return nil
 }
 
-/************************** Follow & UnFollow & Timeline *************************/
+/********************* Follow & UnFollow & Timeline & Logout **********************/
 type SimpleReq struct {
 	Token  string  `json:"token"`
 }
@@ -123,7 +123,7 @@ func (r *SimpleReq) bind(c echo.Context) error {
 }
 
 
-/******************************** Like Tweet **********************************/
+/********************************** Like Tweet ************************************/
 type LikeReq struct {
 	Text  		  string `json:"text"`
 	OwnerUsername string `json:"ownerUsername"`
