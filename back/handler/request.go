@@ -2,6 +2,7 @@ package handler
 
 import (
 	"time"
+	// "fmt"
 
 	"github.com/labstack/echo/v4"
 	"github.com/shivaZeymaran/Twitter-Web.git/model"
@@ -65,6 +66,8 @@ func (r *TweetReq) bind(c echo.Context, t *model.Tweet) error {
 	username := user_token_map[r.Token]
 	var u model.User
 	database.DB.Find(&u, model.User{Username:username})
+	// database.DB.Model(&u).Association("Tweets").Append(&model.Tweet{OwnerID: u.ID, Text: r.Text})
+	// t.Likes = make([]model.User, 0)
 	t.Owner = u
 	t.Time = time.Now()
 	t.Text = r.Text
@@ -104,12 +107,30 @@ func (r *EditReq) bind(c echo.Context) error {
 	return nil
 }
 
-/************************** Follow & UnFollow & Timeline *************************/
+/********************* Follow & UnFollow & Timeline & Logout **********************/
 type SimpleReq struct {
 	Token  string  `json:"token"`
 }
 
 func (r *SimpleReq) bind(c echo.Context) error {
+	if err := c.Bind(r); err != nil {
+		return err
+	}
+	if errs := validator.Validate(r); errs != nil {
+		return errs
+	}
+	return nil
+}
+
+
+/********************************** Like Tweet ************************************/
+type LikeReq struct {
+	Text  		  string `json:"text"`
+	OwnerUsername string `json:"ownerUsername"`
+	Token 		  string `json:"token"`
+}
+
+func (r *LikeReq) bind(c echo.Context) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}

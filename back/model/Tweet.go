@@ -14,6 +14,6 @@ type Tweet struct {
 	Owner         User       `json:"owner"`
 	OwnerID       uint       `json:"ownerID" gorm:"primary_key"`
 	// Media        
-	Likes         []User     `json:"likes"`
+	Likes         []User     `json:"likes" gorm:"many2many:likes;`
 	Retweets      []User     `json:"retweets"`
 }

@@ -74,7 +74,7 @@ func newTweetResponse(c echo.Context, t *model.Tweet) *SingleTweetResp {
 
 	r.Owner.Username = t.Owner.Username
 	r.Owner.Image = t.Owner.Image
-	r.Owner.Following = t.Owner.FollowedBy(userIDFromToken(c))
+	r.Owner.Following = FollowedBy(t.Owner, userIDFromToken(c))
 	return &SingleTweetResp{r}
 }
 
@@ -106,7 +106,7 @@ func TimelineResponse(c echo.Context, tl []model.Tweet) *TimelineResp {
 	
 		tr.Owner.Username = t.Owner.Username
 		tr.Owner.Image = t.Owner.Image
-		tr.Owner.Following = t.Owner.FollowedBy(userIDFromToken(c))
+		tr.Owner.Following = FollowedBy(t.Owner, userIDFromToken(c))
 
 		r.Timeline = append(r.Timeline, tr)
 	}
@@ -130,7 +130,7 @@ func EditResponse(u *model.User, token string) *EditResp {
 	return r
 }
 
-/********************************* Follow ***********************************/
+/******************* Follow & Search User with login ***********************/
 type FollowResp struct {
 	Username  string  `json:"username"`
 	Image     *string `json:"image"`
@@ -145,6 +145,21 @@ func newFollowResponse(userID uint, u *model.User) *FollowResp {
 	return r
 }
 
+/******************************* Search User ********************************/
+type SearchUserResp struct {
+	Username  string  `json:"username"`
+	Image     *string `json:"image"`
+}
+
+func SearchUserResponse(u *model.User) *SearchUserResp {
+	r := new(SearchUserResp)
+	r.Username = u.Username
+	r.Image = u.Image
+	return r
+}
+
+
+/**** helper functions ****/
 
 func IsFollower(userID, followerID uint) (bool, error) {
 	var f model.Follow
@@ -155,4 +170,13 @@ func IsFollower(userID, followerID uint) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func FollowedBy(u model.User, id uint) bool {
+	var f model.Follow
+	database.DB.Find(&f, model.Follow{FollowerID:u.ID, FollowingID:id})
+	if u.Username == "" {   // user with identifier "id" does not follow this user
+		return false
+	}
+	return true
 }

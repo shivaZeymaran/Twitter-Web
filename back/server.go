@@ -36,14 +36,16 @@ func main() {
 
 	e.POST("/signup", handler.User{}.Signup)
 	e.POST("/login", handler.User{}.Login)
-	// todo: go to home page for user: output should be like login
-	// todo: search when not loged in
 	e.POST("/tweet", handler.User{}.Tweet)
 	e.DELETE("/deletetweet", handler.User{}.DeleteTweet)
 	e.PUT("/editprofile", handler.User{}.EditProfile)
 	e.POST("/follow/:username", handler.User{}.Follow)
 	e.DELETE("/unfollow/:username", handler.User{}.UnFollow)
-	e.GET("/timeline", handler.User{}.Timeline)
+	e.POST("/timeline", handler.User{}.Timeline)
+	e.GET("/search@/:username", handler.User{}.SearchUser)
+	e.POST("/search@/:username", handler.User{}.SearchUserWithLogin)
+	e.POST("/like", handler.User{}.LikeTweet)
+	e.POST("/logout", handler.User{}.Logout)
 	
 	if err := e.Start("0.0.0.0:" + PORT); err != nil {
 		fmt.Println("Server not connected!")

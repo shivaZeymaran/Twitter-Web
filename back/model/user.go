@@ -14,10 +14,10 @@ type User struct {
 	Email 		string	 	`json:"email" validate:"regexp=^[^\.][^@\s]+@[^@\s]+\.[^@\s\.]+$"`  // todo: doesn't work!
 	Password 	string 	   	`json:"password" validate:"min=8"`
 	Image       *string     `json:"image"`
-	// Tweets      []Tweet     `json:"tweets" gorm:"foreignkey:OwnerUsername"`
+	Tweets      []Tweet     `json:"tweets" gorm:"foreignkey:OwnerID"`
 	Followers   []Follow   	`json:"followers" gorm:"foreignkey:FollowingID"`
 	Followings  []Follow   	`json:"followings" gorm:"foreignkey:FollowingID"`
-	// Timeline    []Tweet     `json:"timeline"`
+	Likes       []Tweet     `json:"likes" gorm:"many2many:likes;`
 }
 
 type Follow struct {
@@ -41,19 +41,6 @@ func (u User) CheckPassword(plain string) bool {
 	return err == nil
 }
 
-func (u *User) FollowedBy(id uint) bool {
-	if u.Followers == nil {   // no one follows this user so as you :)
-		return false
-	}
-	for _, f := range u.Followers {
-		if f.FollowerID == id {
-			return true
-		}
-	}
-	return false
-}
-
-// cd .\back
 // go run server.go
 
 // git add .
