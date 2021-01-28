@@ -45,7 +45,7 @@ const NewTweet = () => {
   };
 
   return (
-    <div className="newTweet">
+    <div className="new-tweet">
       <h1>Latest Tweets</h1>
       <Form {...layout} name="nest-messages">
         <Form.Item name={["user", "introduction"]}>

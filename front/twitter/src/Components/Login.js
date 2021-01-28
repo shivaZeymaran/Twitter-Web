@@ -6,7 +6,7 @@ import { AuthContext } from "../App";
 import { Layout, Form, Input, Button, Checkbox } from "antd";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 
 const layout = {
   labelCol: { span: 8 },
@@ -42,7 +42,6 @@ const Login = () => {
   };
 
   const handleSubmit = (event) => {
-    // if (data.username == "" && data.username == "")
     event.preventDefault();
     setData({
       ...data,
@@ -77,11 +76,11 @@ const Login = () => {
   };
 
   return (
-    <Router>
-      <Route exact path="/home" component={Home} />
-      <div>
-        <Layout>
-          <Header>Header</Header>
+    <div>
+      <Router>
+        <Route exact path="/home" component={Home} />
+
+        <Layout className="log-in">
           <Content>
             <Form {...layout} name="basic" initialValues={{ remember: true }}>
               <Form.Item
@@ -132,8 +131,8 @@ const Login = () => {
             </Form>
           </Content>
         </Layout>
-      </div>
-    </Router>
+      </Router>
+    </div>
   );
 };
 

@@ -3,14 +3,13 @@ import { AuthContext } from "../App";
 
 import * as React from "react";
 import { Layout } from "antd";
-import { BrowserRouter as Router, Link, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 
 import LeftSider from "./LeftSider";
 import NewTweet from "./NewTweet";
 import RightSider from "./RightSider";
 import Tweet from "./Tweet";
 import Profile from "./Profile";
-import Login from "./Login";
 
 const { Content } = Layout;
 
@@ -59,18 +58,14 @@ const Home = () => {
 
   return (
     <div>
-      {/* {!authState.isAuthenticated ? (
-        <Login />
-      ) : ( */}
       <Router>
         <Route exact path="/profile" component={Profile} />
         <Route exact path="/home" component={Home} />
-       
 
-        <Layout>
+        <Layout className="home-page">
           <LeftSider />
           <RightSider />
-          <Layout className="site-layout" style={{ marginLeft: 200 }}>
+          <Layout className="home-page" style={{ marginLeft: 200 }}>
             <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
               <div
                 className="site-layout-background"
@@ -80,7 +75,7 @@ const Home = () => {
 
                 <div className="site-card-border-less-wrapper">
                   {tweets.map((tweet) => (
-                    <Tweet tweet={tweet} /> 
+                    <Tweet tweet={tweet} />
                   ))}
                 </div>
               </div>

@@ -6,6 +6,7 @@ const Tweet = ({ tweet }) => {
       title={tweet.owner.username}
       bordered={true}
       style={{ width: "80%" }}
+      className="tweet"
     >
       <p>{tweet.text}</p>
     </Card>

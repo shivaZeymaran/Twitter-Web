@@ -16,3 +16,29 @@
   padding-bottom: 30%;
   padding-left: 1%;
 }
+
+.log-in {
+  background-color: #f2ffff;
+  padding-top: 20vw;
+  padding-right: 20vw;
+  padding-left: 20vw;
+  margin: auto;
+  height: 100vh;
+}
+
+.home-page {
+  background-color: #f2ffff;
+}
+
+.new-tweet {
+  text-align: left;
+}
+
+.tweet {
+  text-align: left;
+  margin: 2vw;
+}
+
+* {
+  font-family: "Product Sans", serif;
+}
