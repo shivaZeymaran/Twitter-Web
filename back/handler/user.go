@@ -139,7 +139,7 @@ func (user User) DeleteTweet(c echo.Context) error {
 	var t model.Tweet
 	// Delete from DB
 	if err := database.DB.Where(&model.Tweet{Text: req.Text, OwnerID: u.ID}).Find(&t).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, "Tweet Not found for user")
+		return c.JSON(http.StatusNotFound, "Tweet Not found for user")
 	}
 	
 	// if err := database.DB.Model(&u).Association("Tweets").Find(&t).Error; err != nil {
@@ -397,7 +397,7 @@ func (user User) LikeTweet(c echo.Context) error {
 	database.DB.Model(&t).Association("Likes").Append(&u)
 
 	t.Owner = ou
-	return c.JSON(http.StatusCreated, newTweetResponse(c, &t))
+	return c.JSON(http.StatusOK, newTweetResponse(c, &t))
 }
 
 

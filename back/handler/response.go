@@ -130,7 +130,7 @@ func EditResponse(u *model.User, token string) *EditResp {
 	return r
 }
 
-/******************* Follow & Search User with login ***********************/
+/************* Follow & Unfollow & Search User with login *******************/
 type FollowResp struct {
 	Username  string  `json:"username"`
 	Image     *string `json:"image"`
