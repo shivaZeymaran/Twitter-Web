@@ -6,9 +6,9 @@ const { Search } = Input;
 
 const data = [
     'Azin liked your tweet.',
-    'Ali Followed you.',
+    'Honio Followed you.',
     'Azin liked your tweet.',
-    'sara retweeted your tweet.',
+    'Shiva retweeted your tweet.',
     'Azin liked your tweet.',
   ];
 
@@ -22,7 +22,7 @@ function RightSider() {
           position: "fixed",
           right: 0,
           backgroundColor:"white",
-        //   width: "",
+          width: "30%",
         }}
       >
         <Search placeholder="input search text" style={{ width: 200 }} />

@@ -1,4 +1,4 @@
-@import '~antd/dist/antd.css';
+@import "~antd/dist/antd.css";
 
 .App {
   text-align: center;
@@ -6,8 +6,13 @@
 }
 
 .app-container {
-    text-align: center;
-    margin: auto;
-    margin-top: 10%;
+  text-align: center;
+  margin: auto;
+  margin-top: 10%;
 }
 
+.menu_item {
+  padding-top: 30%;
+  padding-bottom: 30%;
+  padding-left: 1%;
+}

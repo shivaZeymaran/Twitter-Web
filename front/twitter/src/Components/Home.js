@@ -63,7 +63,10 @@ const Home = () => {
         <Login />
       ) : ( */}
       <Router>
-        <Route path="/profile" component={Profile} />
+        <Route exact path="/profile" component={Profile} />
+        <Route exact path="/home" component={Home} />
+       
+
         <Layout>
           <LeftSider />
           <RightSider />

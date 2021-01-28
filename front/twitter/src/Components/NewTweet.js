@@ -17,6 +17,10 @@ const NewTweet = () => {
   const { state: authState } = React.useContext(AuthContext);
   const [tweetText, setTweetText] = React.useState("");
 
+  const handleChange = (e) => {
+    setTweetText(e.target.value);
+  };
+
   const handleSubmit = () => {
     console.log(authState.token);
     fetch("http://localhost:8090/tweet", {
@@ -32,6 +36,7 @@ const NewTweet = () => {
     })
       .then((response) => {
         if (response.status === 201) console.log(response.status + " created!");
+        setTweetText("");
         return response.json();
       })
       .then((data) => {
@@ -46,7 +51,8 @@ const NewTweet = () => {
         <Form.Item name={["user", "introduction"]}>
           <Input.TextArea
             placeholder="What's happening?"
-            onChange={(e) => setTweetText(e.target.value)}
+            value={tweetText}
+            onChange={handleChange}
           />
         </Form.Item>
         <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
